@@ -5,7 +5,7 @@
 int main (int argc, char *argv[]) {
   int nthreads;
   int array[32]={0};
-  //nthreads = omp_get_num_threads();
+  omp_set_num_threads(8);
   /* Fork a team of threads giving them their own copies of variables */
 #pragma omp parallel private(nthreads)
   {
@@ -18,7 +18,6 @@ int main (int argc, char *argv[]) {
 	array[i] = 0;
     } /* All threads join master thread and disband */
   }
-  printf("done with part a\n");
 
 #pragma omp parallel private(nthreads)
   {
@@ -34,8 +33,6 @@ int main (int argc, char *argv[]) {
    }
   }
 
-  printf("dont with part b\n");
-
   int oddSum, oddCount, lSum, lCount;
   int i, tid;
 
@@ -48,9 +45,7 @@ int main (int argc, char *argv[]) {
     lCount = 0;
     #pragma omp for schedule (static, 1)
     for (i=0; i<32; i++) {
-      //printf("FOR tid:%d, i:%d, array[i]:%d\n", tid, i, array[i]);
       if (array[i] % 2 == 1) {
-	//printf("IF tid:%d, i:%d, array[i]:%d\n", tid, i, array[i]);
         lSum += array[i];
         lCount += 1;
       }
@@ -58,7 +53,6 @@ int main (int argc, char *argv[]) {
   #pragma omp critical
   {
     oddSum += lSum;
-    //#pragma omp critical
     oddCount += lCount;
   }
 
@@ -69,14 +63,10 @@ int main (int argc, char *argv[]) {
 
       // #pragma omp for schedule (static, 4)
       printf("From master thread:%d\n", tid, i);
-      /*for (i=0; i<32; i++) {
-        printf("a[%d]= %d\n", i, array[i]);
-	}*/
       printf("Number of Odd:%d, Sum of odd:%d\n", oddCount, oddSum);
     }
   }
  /* All threads join master thread and disband */
-  //printf("Number of odds:%d\n", oddCount);
   return 0;
 }
 
